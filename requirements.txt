@@ -1,0 +1,7 @@
+torch
+diffusers
+numpy
+tqdm
+matplotlib
+safetensors
+huggingface-hub

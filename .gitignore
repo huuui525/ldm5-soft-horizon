@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Environments
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+
+# Local datasets
+标签/
+*.npy
+!results/**/*.npy
+
+# Training outputs and checkpoints
+outputs/
+outputs_horizon/
+outputs_horizon_cond/
+*.safetensors
+*.ckpt
+*.pt
+*.pth
+*.bin
+
+# Large visualization arrays
+*.npz
+
+# Keep curated lightweight result artifacts
+!results/
+!results/**/
+!results/**/*.json
+!results/**/*.png
+
+# OS
+Thumbs.db
+.DS_Store
