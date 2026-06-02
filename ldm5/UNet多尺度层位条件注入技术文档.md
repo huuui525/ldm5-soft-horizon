@@ -124,7 +124,7 @@ H(i, j) = mean_c E_c(i, j)
 ### 3.2 二值层位标签 `horizon_label_map`
 
 ```python
-def horizon_label_map(x, quantile=0.85):
+def horizon_label_map(x, quantile=0.75):
     soft = soft_horizon_map(x)
     flat = soft.flatten(start_dim=1)
     threshold = torch.quantile(flat, quantile, dim=1).view(-1, 1, 1, 1)
@@ -137,12 +137,12 @@ def horizon_label_map(x, quantile=0.85):
 强层位位置 = soft_horizon >= 分位数阈值
 ```
 
-默认 `quantile=0.85`，表示保留响应最强的 15% 位置作为层位标签。
+默认 `quantile=0.75`，表示保留响应最强的 25% 位置作为层位标签。
 
 ### 3.3 条件图下采样 `horizon_condition`
 
 ```python
-def horizon_condition(x, latent_size, mode="soft", quantile=0.85):
+def horizon_condition(x, latent_size, mode="soft", quantile=0.75):
     if mode == "soft":
         cond = soft_horizon_map(x)
     elif mode == "label":
@@ -703,7 +703,7 @@ python -m ldm5.train_horizon_latent_diffusion `
   --num_epochs 50 `
   --device cuda `
   --condition_mode label `
-  --label_quantile 0.85
+  --label_quantile 0.75
 ```
 
 ### 9.4 条件采样可视化

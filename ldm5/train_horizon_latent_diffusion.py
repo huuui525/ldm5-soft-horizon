@@ -39,8 +39,23 @@ def parse_args():
     p.add_argument("--save_every", type=int, default=cfg.train.save_every_epochs)
     p.add_argument("--seed", type=int, default=cfg.train.seed)
     p.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu")
-    p.add_argument("--condition_mode", choices=["soft", "label"], default="soft")
-    p.add_argument("--label_quantile", type=float, default=0.85)
+    p.add_argument(
+        "--condition_mode",
+        choices=[
+            "soft",
+            "label",
+            "per_channel",
+            "per_channel_label",
+            "combined",
+            "combined_label",
+        ],
+        default="combined",
+        help=(
+            "Horizon condition type. combined uses shared soft horizon plus "
+            "five per-channel horizon maps (6 channels)."
+        ),
+    )
+    p.add_argument("--label_quantile", type=float, default=0.75)
     p.add_argument("--condition_scale", type=float, default=1.0)
     p.add_argument("--save_horizon_labels", action="store_true")
     p.add_argument("--smoke", action="store_true", help="Run a single batch and exit.")
@@ -89,10 +104,18 @@ def main() -> None:
         cfg.unet.sample_size = z.shape[-1]
         cfg.unet.in_channels = z.shape[1]
         cfg.unet.out_channels = z.shape[1]
+        probe_horizon = horizon_condition(
+            probe,
+            latent_size=(cfg.unet.sample_size, cfg.unet.sample_size),
+            mode=args.condition_mode,
+            quantile=args.label_quantile,
+        )
         print(f"Latent shape: {tuple(z.shape)} -> using UNet sample_size={cfg.unet.sample_size}")
+        print(f"Horizon condition shape: {tuple(probe_horizon.shape)}")
 
     unet = MultiScaleHorizonUNet(
         unet_config=dataclasses.asdict(cfg.unet),
+        condition_channels=probe_horizon.shape[1],
         condition_scale=args.condition_scale,
     ).to(args.device)
     scheduler = build_scheduler(cfg.train)
@@ -118,6 +141,7 @@ def main() -> None:
                 "train": dataclasses.asdict(cfg.train),
                 "ae_dir": args.ae_dir,
                 "condition_mode": args.condition_mode,
+                "condition_channels": int(probe_horizon.shape[1]),
                 "label_quantile": args.label_quantile,
                 "condition_scale": args.condition_scale,
                 "stats": stats,

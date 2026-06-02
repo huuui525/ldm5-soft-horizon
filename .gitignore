@@ -25,6 +25,7 @@ outputs/
 outputs_horizon/
 outputs_horizon_cond/
 outputs_softae_horizon_cond/
+outputs_six_channel_horizon/
 *.safetensors
 *.ckpt
 *.pt

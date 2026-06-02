@@ -14,12 +14,12 @@ from diffusers import UNet2DModel
 
 
 class HorizonAdapter(nn.Module):
-    """Project a one-channel horizon map into a U-Net feature tensor."""
+    """Project horizon condition maps into a U-Net feature tensor."""
 
-    def __init__(self, out_channels: int) -> None:
+    def __init__(self, condition_channels: int, out_channels: int) -> None:
         super().__init__()
         self.net = nn.Sequential(
-            nn.Conv2d(1, out_channels, kernel_size=3, padding=1),
+            nn.Conv2d(condition_channels, out_channels, kernel_size=3, padding=1),
             nn.SiLU(),
             nn.Conv2d(out_channels, out_channels, kernel_size=1),
         )
@@ -43,19 +43,19 @@ class MultiScaleHorizonUNet(nn.Module):
     def __init__(
         self,
         unet_config: dict[str, Any],
-        condition_channels: int = 1,
+        condition_channels: int = 6,
         condition_scale: float = 1.0,
     ) -> None:
         super().__init__()
-        if condition_channels != 1:
-            raise ValueError("Only one-channel horizon conditions are supported.")
+        if condition_channels <= 0:
+            raise ValueError("condition_channels must be positive.")
         self.unet = UNet2DModel(**unet_config)
         self.condition_channels = condition_channels
         self.condition_scale = condition_scale
         block_out = list(unet_config["block_out_channels"])
         inject_channels = [block_out[0]] + block_out[:-1]
         self.horizon_adapters = nn.ModuleList(
-            [HorizonAdapter(channels) for channels in inject_channels]
+            [HorizonAdapter(condition_channels, channels) for channels in inject_channels]
         )
 
     @property
@@ -101,6 +101,11 @@ class MultiScaleHorizonUNet(nn.Module):
             raise ValueError("class_embedding needs to be initialized in order to use class conditioning")
 
         horizon = horizon.to(device=sample.device, dtype=sample.dtype)
+        if horizon.shape[1] != self.condition_channels:
+            raise ValueError(
+                f"Expected horizon with {self.condition_channels} channels, "
+                f"got {horizon.shape[1]}."
+            )
 
         skip_sample = sample
         sample = unet.conv_in(sample)
