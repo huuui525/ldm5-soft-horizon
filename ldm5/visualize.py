@@ -37,7 +37,7 @@ def parse_args():
     p.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu")
     p.add_argument("--save_dir", type=str, default="outputs/evaluation")
     p.add_argument("--seed", type=int, default=0)
-    p.add_argument("--cmap", type=str, default="viridis",
+    p.add_argument("--cmap", type=str, default="jet",
                    help="matplotlib colormap, e.g. viridis (default) / seismic / gray / jet")
     p.add_argument("--skip_ldm", action="store_true", help="Only visualize real/AE reconstruction.")
     return p.parse_args()

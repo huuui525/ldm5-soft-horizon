@@ -24,6 +24,7 @@ env/
 outputs/
 outputs_horizon/
 outputs_horizon_cond/
+outputs_softae_horizon_cond/
 *.safetensors
 *.ckpt
 *.pt

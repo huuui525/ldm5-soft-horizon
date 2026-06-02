@@ -62,7 +62,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--prefix", type=str, default="")
     parser.add_argument("--start_index", type=int, default=1)
     parser.add_argument("--num_preview", type=int, default=8)
-    parser.add_argument("--cmap", type=str, default="viridis")
+    parser.add_argument("--cmap", type=str, default="jet")
     parser.add_argument("--save_normalized", action="store_true")
     return parser.parse_args()
 

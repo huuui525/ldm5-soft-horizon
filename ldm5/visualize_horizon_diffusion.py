@@ -31,7 +31,7 @@ def parse_args():
     p.add_argument("--label_quantile", type=float, default=0.85)
     p.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu")
     p.add_argument("--seed", type=int, default=0)
-    p.add_argument("--cmap", type=str, default="viridis")
+    p.add_argument("--cmap", type=str, default="jet")
     return p.parse_args()
 
 
